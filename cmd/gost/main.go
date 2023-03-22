@@ -86,6 +86,7 @@ func init() {
 	flag.StringVar(&apiAddr, "api", "", "api service address")
 	flag.StringVar(&metricsAddr, "metrics", "", "metrics service address")
 	flag.Parse()
+	parseForShadowSocksOpts()
 
 	if printVersion {
 		fmt.Fprintf(os.Stdout, "gost %s (%s %s/%s)\n",
@@ -95,6 +96,20 @@ func init() {
 
 	log = xlogger.NewLogger()
 	logger.SetDefault(log)
+}
+
+func parseForShadowSocksOpts() {
+	valOpts := os.Getenv("SS_PLUGIN_OPTIONS")
+	for _, opt := range strings.Split(valOpts, ";") {
+		if strings.Contains(opt, "=") {
+			keyValue := strings.Split(opt, "=")
+			if keyValue[0] == "L" {
+				services = append(services, keyValue[1])
+			} else if keyValue[1] == "F" {
+				nodes = append(nodes, keyValue[1])
+			}
+		}
+	}
 }
 
 func main() {
